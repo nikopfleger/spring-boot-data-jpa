@@ -29,9 +29,9 @@
 	</nav>
 
 	<div class="container">
-		<h1 class="text-primary border-bottom border-success" th:text="${titulo}"></h1>
+		<h1 class="text-secondary border-bottom border-success" th:text="${titulo}"></h1>
 		
-		<a th:href="@{/form}">Crear cliente</a>
+		<p><a th:href="@{/form}" class="btn btn-primary btn-xs">Crear cliente</a></p>
 					
 		<table class="table table-striped">
 			<thead>
@@ -41,6 +41,8 @@
 					<th>Apellido</th>
 					<th>E-mail</th>
 					<th>Fecha</th>
+					<th>Editar</th>
+					<th>Eliminar</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -50,6 +52,8 @@
 					<td th:text="${cliente.apellido}"></td>
 					<td th:text="${cliente.email}"></td>
 					<td th:text="${cliente.createAt}"></td>
+					<td><a class="btn btn-primary btn-xs" th:href="@{/form/} + ${cliente.id}" >Editar</a></td>
+					<td><a class="btn btn-danger btn-xs" th:href="@{/eliminar/} + ${cliente.id}" onclick="return confirm('Estás seguro que quieres eliminar?');">Eliminar</a></td>
 				</tr>
 			</tbody>
 		</table>

@@ -8,10 +8,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 //SI LA TABLA SE LLAMA IGUAL NO USAMOS @Table(name="")
 
@@ -28,19 +32,27 @@ public class Cliente implements Serializable {
 	// COLUMN SI TIENE EL MISMO NOMBRE NO ES NECESARIO
 	// con , hay mas opciones
 	@Column(name = "nombre")
+	@NotEmpty
 	private String nombre;
+	
+	@NotEmpty
 	private String apellido;
+	
+	@NotEmpty
+	@Email
 	private String email;
 
+	@NotNull
 	@Column(name = "create_at")
 	@Temporal(TemporalType.DATE)
+	@DateTimeFormat(pattern = "dd/MM/yyyy")
 	private Date createAt;
-	
-	//SE LLAMA ANTES DE INSERTAR CON PERSIST
-	@PrePersist
-	public void prePersist() {
-		createAt = new Date();
-	}
+
+	// SE LLAMA ANTES DE INSERTAR CON PERSIST
+//	@PrePersist
+//	public void prePersist() {
+//		createAt = new Date();
+//	}
 
 	public Long getId() {
 		return id;
