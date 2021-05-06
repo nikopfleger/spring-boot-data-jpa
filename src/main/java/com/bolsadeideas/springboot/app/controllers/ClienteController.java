@@ -1,5 +1,7 @@
 package com.bolsadeideas.springboot.app.controllers;
 
+import java.io.IOException;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,29 +17,52 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.bolsadeideas.springboot.app.models.entity.Cliente;
 import com.bolsadeideas.springboot.app.models.service.IClienteService;
+import com.bolsadeideas.springboot.app.models.service.IUploadFileService;
 import com.bolsadeideas.springboot.app.util.paginator.PageRender;
 
 @Controller
 @SessionAttributes("cliente")
 public class ClienteController {
 
+	private String rootPath;
+
 	@Autowired
 	private IClienteService clienteService;
 
+	@Autowired
+	private IUploadFileService uploadFileService;
+
+	@GetMapping(value = "/ver/{id}")
+	public String ver(@PathVariable(value = "id") Long id, Model model, RedirectAttributes flash) {
+
+		Cliente cliente = clienteService.findOne(id);
+
+		if (cliente == null) {
+			flash.addFlashAttribute("error", "El cliente no existe en la base de datos");
+			return "redirect:/listar";
+		}
+
+		model.addAttribute("cliente", cliente);
+		model.addAttribute("titulo", "Detalle cliente: " + cliente.getNombre());
+
+		return "ver";
+	}
+
 	@GetMapping("/listar")
-	public String listar(@RequestParam(name="page", defaultValue="0") int page, Model model) {
-		
-		Pageable pageRequest = PageRequest.of(page,4); 
-		
+	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model) {
+
+		Pageable pageRequest = PageRequest.of(page, 4);
+
 		Page<Cliente> clientes = clienteService.findAll(pageRequest);
-		
+
 		PageRender<Cliente> pageRender = new PageRender<>("/listar", clientes);
-		
-		model.addAttribute("page",pageRender);				
+
+		model.addAttribute("page", pageRender);
 		model.addAttribute("titulo", "Listado de clientes");
 		model.addAttribute("clientes", clientes);
 
@@ -53,15 +78,39 @@ public class ClienteController {
 	}
 
 	@PostMapping("/form")
-	public String guardar(@Valid Cliente cliente, BindingResult result, Model model, RedirectAttributes flash,
-			SessionStatus status) {
+	public String guardar(@Valid Cliente cliente, BindingResult result, Model model,
+			@RequestParam("file") MultipartFile foto, RedirectAttributes flash, SessionStatus status) {
 
 		if (result.hasErrors()) {
 			model.addAttribute("titulo", "Formulario de Cliente");
 			return "form";
 		}
+
+		if (!foto.isEmpty()) {
+
+			if (cliente.getId() != null && cliente.getId() > 0 && cliente.getFoto() != null
+					&& cliente.getFoto().length() > 0) {
+
+				uploadFileService.delete(cliente.getFoto());
+
+			}
+
+			String uniqueFilename = null;
+			try {
+				uniqueFilename = uploadFileService.copy(foto);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			flash.addFlashAttribute("info", "Has subido correctamente '" + uniqueFilename + "'");
+
+			cliente.setFoto(uniqueFilename);
+
+		}
+
 		String mensajeFlash = (cliente.getId() != null) ? "Cliente editado con éxito!" : "Cliente creado con éxito!";
-		
+
 		clienteService.save(cliente);
 		status.setComplete();
 		flash.addFlashAttribute("success", mensajeFlash);
@@ -94,10 +143,25 @@ public class ClienteController {
 	@GetMapping("/eliminar/{id}")
 	public String eliminar(@PathVariable(value = "id") Long id, RedirectAttributes flash) {
 		if (id > 0) {
+			Cliente cliente = clienteService.findOne(id);
+
 			clienteService.delete(id);
 			flash.addAttribute("success", "Cliente eliminado con éxito!");
+
+			if (uploadFileService.delete(cliente.getFoto())) {
+				flash.addAttribute("info", "Foto " + cliente.getFoto() + " eliminada con exito!");
+			}
+
 		}
 
 		return "redirect:/listar";
+	}
+
+	public String getRootPath() {
+		return rootPath;
+	}
+
+	public void setRootPath(String rootPath) {
+		this.rootPath = rootPath;
 	}
 }

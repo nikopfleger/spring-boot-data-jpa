@@ -34,10 +34,10 @@ public class Cliente implements Serializable {
 	@Column(name = "nombre")
 	@NotEmpty
 	private String nombre;
-	
+
 	@NotEmpty
 	private String apellido;
-	
+
 	@NotEmpty
 	@Email
 	private String email;
@@ -47,6 +47,8 @@ public class Cliente implements Serializable {
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "dd/MM/yyyy")
 	private Date createAt;
+
+	private String foto;
 
 	// SE LLAMA ANTES DE INSERTAR CON PERSIST
 //	@PrePersist
@@ -96,6 +98,14 @@ public class Cliente implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public String getFoto() {
+		return foto;
+	}
+
+	public void setFoto(String foto) {
+		this.foto = foto;
 	}
 
 }
