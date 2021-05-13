@@ -57,7 +57,7 @@ public class Cliente implements Serializable {
 	
 	//DELETE Y PERSIST EN CASCADA
 	//mappedBy crea automatico la foreign key
-	@OneToMany(mappedBy="cliente" , fetch = FetchType.LAZY, cascade= CascadeType.ALL, orphanRemoval=true)
+	@OneToMany(mappedBy="cliente" , fetch = FetchType.LAZY, cascade= CascadeType.ALL, orphanRemoval=true) 
 	private List<Factura> factura;
 
 	// SE LLAMA ANTES DE INSERTAR CON PERSIST

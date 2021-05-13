@@ -41,7 +41,10 @@ public class FacturaController {
 			Model model,
 			RedirectAttributes flash) {
 		
-		Factura factura = clienteService.findFacturaById(id);
+		//esto es para traer todo, sino con lo de abajo es lazy, trae a medida q lo pido
+		Factura factura = clienteService.fetchFacturaByIdWithClienteWithItemFacturaWithProducto(id);
+		
+//		Factura factura = clienteService.findFacturaById(id);
 		
 		if (factura == null) {
 			flash.addFlashAttribute("errror", "La factura no existe!");
@@ -59,6 +62,8 @@ public class FacturaController {
 	public String crear(@PathVariable(value = "clienteId") Long clienteId, Model model, RedirectAttributes flash) {
 
 		Cliente cliente = clienteService.findOne(clienteId);
+		
+		
 
 		if (cliente == null) {
 			flash.addFlashAttribute("error", "El cliente no existe en la base de datos");
