@@ -1,13 +1,22 @@
 package com.bolsadeideas.springboot.app.controllers;
 
 import java.io.IOException;
+import java.util.Collection;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,6 +38,8 @@ import com.bolsadeideas.springboot.app.util.paginator.PageRender;
 @SessionAttributes("cliente")
 public class ClienteController {
 
+	protected final Log logger = LogFactory.getLog(this.getClass());
+	
 	private String rootPath;
 
 	@Autowired
@@ -37,6 +48,9 @@ public class ClienteController {
 	@Autowired
 	private IUploadFileService uploadFileService;
 
+	//OTRA FORMA
+	//@PreAuthorize("hasRole('')")
+	@Secured("ROLE_USER")
 	@GetMapping(value = "/ver/{id}")
 	public String ver(@PathVariable(value = "id") Long id, Model model, RedirectAttributes flash) {
 
@@ -54,9 +68,44 @@ public class ClienteController {
 		return "ver";
 	}
 
-	@GetMapping("/listar")
-	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model) {
+	@GetMapping({"/listar", "/", ""})
+	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model, Authentication authentication, HttpServletRequest request) {
+		
+		if (authentication != null) {
+			logger.info("Hola usuario autenticado, tu username es: " + authentication.getName());
+			
+		}
+		
 
+		
+		/*
+		if (hasRole("ROLE_ADMIN",  authentication)) {
+			logger.info("Hola ".concat(authentication.getName()).concat(" tienes acceso!"));
+		} else {
+			logger.info("Hola ".concat(authentication.getName()).concat(" no tienes acceso!"));
+		}  LO MISMMO DE ABAJO */
+		
+		/*-
+		//WRAPPER
+		SecurityContextHolderAwareRequestWrapper securityContext = new SecurityContextHolderAwareRequestWrapper(request, "ROLE_");
+		
+		if(securityContext.isUserInRole("ADMIN")) {
+			logger.info("Hola ".concat(authentication.getName()).concat(" tienes acceso!"));
+		} else {
+			logger.info("Hola ".concat(authentication.getName()).concat(" no tienes acceso!"));
+		} LO MISMO DE ABAJO */
+		
+		if(request.isUserInRole("ROLE_ADMIN")) {
+			logger.info("Hola ".concat(authentication.getName()).concat(" tienes acceso!"));
+		} else {
+			try {
+			logger.info("Hola ".concat(authentication.getName()).concat(" no tienes acceso!"));
+			} catch (NullPointerException e) {
+				//e.printStackTrace();
+				logger.info("Hola, no tienes usuario, por lo tanto no tienes acceso");
+			}
+		}
+		
 		Pageable pageRequest = PageRequest.of(page, 4);
 
 		Page<Cliente> clientes = clienteService.findAll(pageRequest);
@@ -70,6 +119,7 @@ public class ClienteController {
 		return "listar";
 	}
 
+	@Secured("ROLE_ADMIN") //CON LLAVES VALIDO VARIOS
 	@GetMapping("/form")
 	public String crear(Model model) {
 		Cliente cliente = new Cliente();
@@ -78,6 +128,7 @@ public class ClienteController {
 		return "form";
 	}
 
+	@Secured("ROLE_ADMIN")
 	@PostMapping("/form")
 	public String guardar(@Valid Cliente cliente, BindingResult result, Model model,
 			@RequestParam("file") MultipartFile foto, RedirectAttributes flash, SessionStatus status) {
@@ -141,6 +192,7 @@ public class ClienteController {
 		return "form";
 	}
 
+	@Secured("ROLE_ADMIN")
 	@GetMapping("/eliminar/{id}")
 	public String eliminar(@PathVariable(value = "id") Long id, RedirectAttributes flash) {
 		if (id > 0) {
@@ -156,6 +208,21 @@ public class ClienteController {
 		}
 
 		return "redirect:/listar";
+	}
+	
+	//TODA CLASE ROL TIENE QUE IMPLEMENTAR GrantedAuthority
+	//SPRING SECURITY LOS MANEJA CON SIMPLEGRANTEDAUTHORITY, PERO SI QUIERO CREAR UN ROL DEBO INCLUIRLO
+	private boolean hasRole(String role, Authentication auth) {
+		
+		if (auth!= null) {
+			logger.info("Hola usuario autenticado, tu username es: " + auth.getName());
+			
+		}
+		//CUALQUIER ROL TIENE QUE IMPLEMENTAR LA INTERFAZ
+		Collection<?  extends GrantedAuthority> authorities = auth.getAuthorities();
+		
+		//SI TENGO EL ROL
+		return authorities.contains(new SimpleGrantedAuthority(role));
 	}
 
 	public String getRootPath() {
