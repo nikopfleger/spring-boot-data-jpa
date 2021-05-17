@@ -36,7 +36,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		// RUTAS PUBLICAS con permit all, hasAnyRole todo lo anterior de antmatchers
 		// SPRING SECURITY VALIDA CON UN INTERCEPTOR SI TENGO PERMISOS
 		// DESDE EL AND ES IMPLEMENTACION DEL FORMULARIO
-		http.authorizeRequests().antMatchers("/", "/css/**", "/js/**", "/images/**", "/listar").permitAll()
+		http.authorizeRequests().antMatchers("/", "/css/**", "/js/**", "/images/**", "/listar", "/locale").permitAll()
 		.antMatchers("/uploads/**").hasAnyRole("USER") //ESTE NO LO PUEDO PONER PORQUE NO USE EL OTRO METODO
 				/*.antMatchers("/ver/**").hasAnyRole("USER")				
 				.antMatchers("/form/**").hasAnyRole("ADMIN").antMatchers("/eliminar/**").hasAnyRole("ADMIN")

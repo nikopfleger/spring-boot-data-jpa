@@ -2,6 +2,7 @@ package com.bolsadeideas.springboot.app.controllers;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -10,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +49,10 @@ public class ClienteController {
 
 	@Autowired
 	private IUploadFileService uploadFileService;
+	
+	//PARA INYECTAR EL IDIOMA	
+	@Autowired
+	private MessageSource messageSource;
 
 	//OTRA FORMA
 	//@PreAuthorize("hasRole('')")
@@ -69,31 +75,13 @@ public class ClienteController {
 	}
 
 	@GetMapping({"/listar", "/", ""})
-	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model, Authentication authentication, HttpServletRequest request) {
+	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model, Authentication authentication, HttpServletRequest request, Locale locale) {
 		
 		if (authentication != null) {
 			logger.info("Hola usuario autenticado, tu username es: " + authentication.getName());
 			
 		}
 		
-
-		
-		/*
-		if (hasRole("ROLE_ADMIN",  authentication)) {
-			logger.info("Hola ".concat(authentication.getName()).concat(" tienes acceso!"));
-		} else {
-			logger.info("Hola ".concat(authentication.getName()).concat(" no tienes acceso!"));
-		}  LO MISMMO DE ABAJO */
-		
-		/*-
-		//WRAPPER
-		SecurityContextHolderAwareRequestWrapper securityContext = new SecurityContextHolderAwareRequestWrapper(request, "ROLE_");
-		
-		if(securityContext.isUserInRole("ADMIN")) {
-			logger.info("Hola ".concat(authentication.getName()).concat(" tienes acceso!"));
-		} else {
-			logger.info("Hola ".concat(authentication.getName()).concat(" no tienes acceso!"));
-		} LO MISMO DE ABAJO */
 		
 		if(request.isUserInRole("ROLE_ADMIN")) {
 			logger.info("Hola ".concat(authentication.getName()).concat(" tienes acceso!"));
@@ -113,7 +101,7 @@ public class ClienteController {
 		PageRender<Cliente> pageRender = new PageRender<>("/listar", clientes);
 
 		model.addAttribute("page", pageRender);
-		model.addAttribute("titulo", "Listado de clientes");
+		model.addAttribute("titulo", messageSource.getMessage("text.cliente.listar.titulo", null, locale));
 		model.addAttribute("clientes", clientes);
 
 		return "listar";
