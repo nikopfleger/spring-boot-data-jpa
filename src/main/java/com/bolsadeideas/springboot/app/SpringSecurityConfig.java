@@ -1,7 +1,8 @@
 package com.bolsadeideas.springboot.app;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -24,10 +25,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private LoginSuccessHandler successHandler;
 	
-	@Bean
-	public BCryptPasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private DataSource dataSource;
+	
+
 
 	// SOURCE OVERRIDE CONFIGURE
 	@Override
@@ -51,7 +55,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	public void configurerGlobal(AuthenticationManagerBuilder builder) throws Exception {
 
-		PasswordEncoder encoder = passwordEncoder();
+		builder.jdbcAuthentication().dataSource(dataSource).passwordEncoder(passwordEncoder)
+		.usersByUsernameQuery("select username, password, enabled from users where username = ?")
+		.authoritiesByUsernameQuery("select u.username, a.authority from authorities a inner join users u on (u.id = a.user_id) where u.username = ?");
 		/*
 		 * UserBuilder users = User.builder().passwordEncoder(password -> { return
 		 * encoder.encode(password); });
@@ -63,10 +69,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		// EL :: obtiene el parametro de la funcion lambda y se lo pasa al metodo
 		// LOS DOS METODOS DE ARRIBA SON EQUIVALENTES, SE PUEDE USAR CUALQUIERA DE LOS 3
 		// EL :: ES DE JAVA 8
-		UserBuilder users = User.builder().passwordEncoder(encoder::encode);
+		
+		/*USAMOS JDBC AUTHENTICATION
+		 * 
+		 * UserBuilder users = User.builder().passwordEncoder(encoder::encode);
 
 		builder.inMemoryAuthentication().withUser(users.username("admin").password("12345").roles("ADMIN", "USER"))
-				.withUser(users.username("nico").password("12345").roles("USER"));
+				.withUser(users.username("nico").password("12345").roles("USER"));*/
 	}
 
 }
