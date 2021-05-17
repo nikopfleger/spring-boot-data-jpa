@@ -1,19 +1,15 @@
 package com.bolsadeideas.springboot.app;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.User.UserBuilder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.bolsadeideas.springboot.app.auth.handler.LoginSuccessHandler;
+import com.bolsadeideas.springboot.app.models.service.JpaUserDetailsService;
 
 //PARA USAR LAS ANOTACIONES DE SEGURIDAD
 //OTRA FORMA
@@ -29,7 +25,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	private BCryptPasswordEncoder passwordEncoder;
 	
 	@Autowired
-	private DataSource dataSource;
+	private JpaUserDetailsService userDetailsService;
 	
 
 
@@ -55,27 +51,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	public void configurerGlobal(AuthenticationManagerBuilder builder) throws Exception {
 
-		builder.jdbcAuthentication().dataSource(dataSource).passwordEncoder(passwordEncoder)
-		.usersByUsernameQuery("select username, password, enabled from users where username = ?")
-		.authoritiesByUsernameQuery("select u.username, a.authority from authorities a inner join users u on (u.id = a.user_id) where u.username = ?");
-		/*
-		 * UserBuilder users = User.builder().passwordEncoder(password -> { return
-		 * encoder.encode(password); });
-		 * 
-		 * UserBuilder users = User.builder().passwordEncoder(password ->
-		 * encoder.encode(password));
-		 * 
-		 */
-		// EL :: obtiene el parametro de la funcion lambda y se lo pasa al metodo
-		// LOS DOS METODOS DE ARRIBA SON EQUIVALENTES, SE PUEDE USAR CUALQUIERA DE LOS 3
-		// EL :: ES DE JAVA 8
+		builder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
 		
-		/*USAMOS JDBC AUTHENTICATION
-		 * 
-		 * UserBuilder users = User.builder().passwordEncoder(encoder::encode);
-
-		builder.inMemoryAuthentication().withUser(users.username("admin").password("12345").roles("ADMIN", "USER"))
-				.withUser(users.username("nico").password("12345").roles("USER"));*/
 	}
 
 }
