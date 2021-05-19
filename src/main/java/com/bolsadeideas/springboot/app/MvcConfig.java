@@ -3,7 +3,6 @@ package com.bolsadeideas.springboot.app;
 import java.nio.file.Paths;
 import java.util.Locale;
 
-import org.hibernate.validator.spi.messageinterpolation.LocaleResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
