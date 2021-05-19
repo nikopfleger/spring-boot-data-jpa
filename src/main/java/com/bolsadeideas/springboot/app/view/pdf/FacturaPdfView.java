@@ -40,6 +40,8 @@ public class FacturaPdfView extends AbstractPdfView {
 		
 		Locale locale = localeResolver.resolveLocale(request);
 		
+		
+		//OTRA FORMA MAS FACIL DE LOCALE QUE CON EL RESOLVER y EL MESSAGESOURCE
 		MessageSourceAccessor mensajes = getMessageSourceAccessor();
 		
 		PdfPTable datosCliente = new PdfPTable(1);

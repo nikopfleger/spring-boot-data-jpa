@@ -14,7 +14,8 @@
 						class="btn btn-light btn-xs" th:utext="#{text.global.volver}">&laquo;
 						volver</a>
 						
-						<a class="btn btn-danger btn-xs float-right" th:href="@{'/factura/ver/' + ${factura.id}(format=pdf)}">Exportar a PDF</a>
+						<a class="btn btn-danger btn-xs float-right mx-2" th:href="@{'/factura/ver/' + ${factura.id}(format=pdf)}" th:text="#{text.factura.exportar.pdf}">Exportar a PDF</a>
+						<a class="btn btn-success btn-xs float-right" th:href="@{'/factura/ver/' + ${factura.id}(format=xlsx)}" th:text="#{text.factura.exportar.xlsx}">Exportar a Excel</a>
 				</h4>
 
 
