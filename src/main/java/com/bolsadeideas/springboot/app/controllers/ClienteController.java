@@ -198,6 +198,7 @@ public class ClienteController {
 	
 	//TODA CLASE ROL TIENE QUE IMPLEMENTAR GrantedAuthority
 	//SPRING SECURITY LOS MANEJA CON SIMPLEGRANTEDAUTHORITY, PERO SI QUIERO CREAR UN ROL DEBO INCLUIRLO
+	@SuppressWarnings("unused")
 	private boolean hasRole(String role, Authentication auth) {
 		
 		if (auth!= null) {
