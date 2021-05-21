@@ -22,6 +22,10 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotEmpty;
 import javax.xml.bind.annotation.XmlTransient;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Table(name = "factura")
 @Entity
 public class Factura implements Serializable {
@@ -42,6 +46,7 @@ public class Factura implements Serializable {
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="create_at")
+	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
 	private Date createAt;
 	
 	//SOLO HAGO LA CONSULTA CUANDO LA LLAMO
@@ -100,6 +105,7 @@ public class Factura implements Serializable {
 
 	//CUANDO SERIALIZA NO LLAMA A ESTE METODO
 	@XmlTransient
+	@JsonBackReference
 	public Cliente getCliente() {
 		return cliente;
 	}

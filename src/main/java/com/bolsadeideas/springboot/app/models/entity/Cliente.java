@@ -22,6 +22,9 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 //SI LA TABLA SE LLAMA IGUAL NO USAMOS @Table(name="")
 
 @Table(name = "cliente")
@@ -51,6 +54,7 @@ public class Cliente implements Serializable {
 	@Column(name = "create_at")
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "dd/MM/yyyy")
+	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
 	private Date createAt;
 
 	private String foto;
@@ -58,6 +62,7 @@ public class Cliente implements Serializable {
 	//DELETE Y PERSIST EN CASCADA
 	//mappedBy crea automatico la foreign key
 	@OneToMany(mappedBy="cliente" , fetch = FetchType.LAZY, cascade= CascadeType.ALL, orphanRemoval=true) 
+	@JsonManagedReference
 	private List<Factura> factura;
 
 	// SE LLAMA ANTES DE INSERTAR CON PERSIST
